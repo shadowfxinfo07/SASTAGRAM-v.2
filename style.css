@@ -627,7 +627,7 @@ body {
 /* PREMIUM FLOATING CAPSULE NAVIGATION BAR */
 .app-navigation-bar {
     position: absolute;
-    bottom: 30px; /* Pushes the nav bar up from the very bottom edge */
+    bottom: 60px; /* Pushes the nav bar up from the very bottom edge */
     left: 5%;
     width: 90%; /* Centers the floating nav inside the smartphone view frame */
     height: 60px;
