@@ -31,6 +31,7 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
+    min-height: 100svh; /* Dynamic viewport support for modern mobile browsers */
     color: var(--text-primary);
     overflow: hidden;
 }
@@ -40,6 +41,7 @@ body {
     width: 100%;
     max-width: 412px;
     height: 100vh;
+    height: 100svh; /* Stays locked within phone browser bars */
     max-height: 892px;
     background-color: var(--bg-core);
     border: 1px solid var(--border-dim);
@@ -49,6 +51,7 @@ body {
     overflow: hidden;
     box-shadow: 0 24px 70px rgba(0, 0, 0, 0.8);
 }
+
 
 @media (min-width: 420px) {
     .phone-container {
@@ -627,21 +630,22 @@ body {
 /* PREMIUM FLOATING CAPSULE NAVIGATION BAR */
 .app-navigation-bar {
     position: absolute;
-    bottom: 90px; /* Pushes the nav bar up from the very bottom edge */
+    /* Pushes it up relative to the phone's system safe area or uses a 100px fallback */
+    bottom: calc(100px + env(safe-area-inset-bottom)); 
     left: 5%;
-    width: 90%; /* Centers the floating nav inside the smartphone view frame */
-    height: 60px;
-    background-color: rgba(11, 11, 12, 0.95); /* Semi-translucent elevated surface tint */
+    width: 90%; 
+    height: 64px;
+    background-color: #0b0b0c; 
     border: 1px solid var(--border-dim);
-    border-radius: 20px; /* Rounded pill capsule aesthetic */
+    border-radius: 20px; 
     display: flex;
-    justify-content: space-between;
+    justify-content: space-around; 
     align-items: center;
-    padding: 0 24px;
-    backdrop-filter: blur(10px);
-    z-index: 9999;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5); /* Soft drop shadow under the floating deck */
+    padding: 0 16px;
+    z-index: 99999; 
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.7); 
 }
+
 
 /* Adjust layout alignment for the icons inside the capsule deck */
 .nav-tab {
