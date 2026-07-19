@@ -237,10 +237,11 @@ body {
 
 .screen-content {
     width: 100%;
-    height: 100%;
+    height: calc(100% - 68px); /* 🛠️ Just change/add this single line! */
     overflow-y: auto;
     padding-bottom: 40px;
 }
+
 
 .screen-content::-webkit-scrollbar {
     display: none;
