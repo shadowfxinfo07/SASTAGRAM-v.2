@@ -621,15 +621,21 @@ body {
 
 /* CORE BOTTOM NAVIGATION CONTROLLER BAR BAR */
 .app-navigation-bar {
-    height: 64px;
-    border-top: 1px solid var(--border-dim);
+    position: absolute; /* 🛠️ Changes it from flex to locked positioning */
+    bottom: 0;          /* 🛠️ Forces it down directly to the bottom edge */
+    left: 0;
+    width: 100%;
+    height: 68px;
+    border-top: 1px solid var(--border-premium);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 24px;
-    background-color: rgba(0, 0, 0, 0.9);
-    backdrop-filter: blur(10px);
+    padding: 0 28px;
+    background-color: rgba(0, 0, 0, 0.95);
+    backdrop-filter: blur(15px);
+    z-index: 9999;      /* 🛠️ Bumps it to stay on top of everything */
 }
+
 
 .nav-tab {
     font-size: 20px;
