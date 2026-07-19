@@ -621,7 +621,7 @@ body {
 
 /* CORE BOTTOM NAVIGATION CONTROLLER BAR BAR */
 .app-navigation-bar {
-    position: absolute; /* 🛠️ Changes it from flex to locked positioning */
+    position: flex; /* 🛠️ Changes it to flex */
     bottom: 0;          /* 🛠️ Forces it down directly to the bottom edge */
     left: 0;
     width: 100%;
