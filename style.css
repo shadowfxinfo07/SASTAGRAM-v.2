@@ -506,10 +506,15 @@ body {
     border: 1px solid var(--border-dim);
     border-radius: 12px;
     padding-left: 38px;
-    color: var(--text-primary);
+    color: #ffffff !important; /* Forces visible white text while typing */
     font-size: 13.5px;
     outline: none;
 }
+
+.search-bar-wrapper input::placeholder {
+    color: var(--text-placeholder);
+}
+
 
 /* PROFILE LAYOUT DATA VIEWS */
 .profile-top-bar {
@@ -620,18 +625,19 @@ body {
 
 .posts-grid-container {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, 1fr)
     gap: 2px;
 }
+
 
 /* PREMIUM FLOATING CAPSULE NAVIGATION BAR */
 .app-navigation-bar {
     position: absolute;
-    bottom: 30px; /* Pushes the nav bar up from the very bottom edge */
+    bottom: 60px; /* Pushes the nav bar up from the very bottom edge */
     left: 5%;
     width: 90%; /* Centers the floating nav inside the smartphone view frame */
-    height: 40px;
-    background-color: rgba(11, 11, 12, 0.95); /* Semi-translucent elevated surface tint */
+    height: 49px;
+    background-color: rgba(11, 11, 12, 0.59); /* Semi-translucent elevated surface tint */
     border: 1px solid var(--border-dim);
     border-radius: 20px; /* Rounded pill capsule aesthetic */
     display: flex;
@@ -684,10 +690,12 @@ body {
     display: flex;
     flex-direction: column;
     transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none; /* ✅ Prevents clicking on hidden drawers */
 }
 
 .component-drawer.open {
     right: 0;
+    pointer-events: auto; /* ✅ Re-enables clicks only when drawer is open */
 }
 
 .component-drawer.drawer-bottom {
@@ -699,11 +707,14 @@ body {
     border-top-right-radius: 24px;
     background-color: var(--bg-surface);
     transition: bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none; /* ✅ Prevents clicking when closed */
 }
 
 .component-drawer.drawer-bottom.open {
     bottom: 0;
+    pointer-events: auto; /* ✅ Enables clicks when open */
 }
+
 
 .drawer-header {
     height: 56px;
@@ -750,7 +761,10 @@ body {
 }
 
 .item-text {
-    font-size: 13px;
+    font-size: 13px ;strong {
+    color: #ffffff !important;
+    display: block;
+}
 }
 
 /* CHAT STYLES CHANNELS OVERRIDES */
@@ -839,9 +853,9 @@ body {
     position: absolute;
     left: 80px;
     right: 0;
-    bottom: 80px;
+    bottom: 150px;
     height: 65px;
-    background: #000;
+    background: #0000009E;
     border-top: 1px solid var(--border-dim);
     display: flex;
     align-items: center;
@@ -880,6 +894,6 @@ body {
 .messages-display::after{
     content: "";
     display: block;
-    height: 120px;
+    height: 300px;
     flex-shrink: 0;
 }

@@ -808,18 +808,32 @@ src="${post.postMedia}"></video>`
 }
 
 // --- DYNAMIC EXPLORE GRID & LIVE USER SEARCH SYSTEM ---
-const searchInput = document.querySelector('.search-bar input');
+const searchInput = document.querySelector('.search-bar-wrapper input');
 const searchContentContainer = document.querySelector('#search-screen .screen-content');
 
+// 1. PREVENT ENTER KEY BUBBLING TO COMMENT/CHAT LISTENERS
+if (searchInput) {
+    searchInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            e.stopPropagation(); // Stops the event from bubbling up to document listeners
+            return false;
+        }
+    });
+}
+
+// 2. EXPLORE GRID FEED LOADER
 async function loadExploreGridFeed() {
     if (searchInput && searchInput.value.trim() !== '') return; 
+    if (!searchContentContainer) return;
+
     searchContentContainer.innerHTML = ''; 
     
     const exploreGrid = document.createElement('div');
     exploreGrid.className = "posts-grid-container";
     exploreGrid.id = "explore-media-masonry";
     
-    // FIXED: Inject skeletons while public discover grid objects compile
+    // Inject skeletons while public discover grid objects compile
     exploreGrid.innerHTML = '<div class="skeleton-box" style="aspect-ratio:1/1;"></div><div class="skeleton-box" style="aspect-ratio:1/1;"></div><div class="skeleton-box" style="aspect-ratio:1/1;"></div>';
     searchContentContainer.appendChild(exploreGrid);
 
@@ -837,13 +851,14 @@ async function loadExploreGridFeed() {
             const post = postDoc.data();
             const gridItem = document.createElement('div');
             gridItem.classList.add('grid-post-item');
-            if (post.type === "video") {
-    gridItem.innerHTML = `
-        <video src="${post.postMedia}" muted></video>
-    `;
-} else {
-    gridItem.style.background = `url('${post.postMedia}') center/cover`;
-}
+            
+            // FIXED: Using correct property names (mediaType and postImage)
+            if (post.mediaType === "video") {
+                gridItem.innerHTML = `<video src="${post.postImage}" muted playsinline style="width:100%; height:100%; object-fit:cover;"></video>`;
+            } else {
+                gridItem.style.background = `url('${post.postImage}') center/cover`;
+            }
+            
             gridItem.style.aspectRatio = "1 / 1";
             gridItem.style.cursor = "pointer";
 
@@ -859,6 +874,7 @@ async function loadExploreGridFeed() {
     }
 }
 
+// 3. LIVE SEARCH WITH DEDUPING LOGIC
 if (searchInput && searchContentContainer) {
     searchInput.addEventListener('input', async (e) => {
         const queryText = e.target.value.trim().toLowerCase();
@@ -873,14 +889,22 @@ if (searchInput && searchContentContainer) {
             const usersRef = collection(db, "users");
             const querySnapshot = await getDocs(usersRef);
             
+            // FIXED: Use a Set to track rendered UIDs and guarantee no duplicate rows
+            const renderedUserUids = new Set();
             let matchedUsersFound = false;
 
             querySnapshot.forEach((userDoc) => {
+                const userId = userDoc.id;
+                
+                // Skip if this account was already added in this search pass
+                if (renderedUserUids.has(userId)) return;
+
                 const userData = userDoc.data();
                 const dbUsername = (userData.username || '').toLowerCase();
                 const dbDisplayName = (userData.displayName || '').toLowerCase();
 
                 if (dbUsername.includes(queryText) || dbDisplayName.includes(queryText)) {
+                    renderedUserUids.add(userId); // Mark as rendered
                     matchedUsersFound = true;
                     
                     const userRow = document.createElement('div');
@@ -900,7 +924,7 @@ if (searchInput && searchContentContainer) {
                     `;
 
                     userRow.addEventListener('click', () => {
-                        loadUserProfileData(userDoc.id);
+                        loadUserProfileData(userId);
                         switchActiveTabScreen('profile-screen');
                     });
 
