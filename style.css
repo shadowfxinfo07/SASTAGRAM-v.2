@@ -624,21 +624,23 @@ body {
     gap: 2px;
 }
 
-/* CORE BOTTOM NAVIGATION CONTROLLER BAR BAR */
+/* PREMIUM FLOATING CAPSULE NAVIGATION BAR */
 .app-navigation-bar {
     position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 64px;
-    border-top: 1px solid var(--border-dim);
+    bottom: 30px; /* Pushes the nav bar up from the very bottom edge */
+    left: 5%;
+    width: 90%; /* Centers the floating nav inside the smartphone view frame */
+    height: 40px;
+    background-color: rgba(11, 11, 12, 0.95); /* Semi-translucent elevated surface tint */
+    border: 1px solid var(--border-dim);
+    border-radius: 20px; /* Rounded pill capsule aesthetic */
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 0 24px;
-    background-color: rgba(0, 0, 0, 0.95);
     backdrop-filter: blur(10px);
-    z-index: 9999; /* Keeps navigation layered safely above scroll panels */
+    z-index: 9999;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5); /* Soft drop shadow under the floating deck */
 }
 
 
