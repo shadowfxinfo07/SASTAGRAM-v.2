@@ -239,9 +239,10 @@ async function loadUserProfileData(uid) {
         const bioDisplay = document.getElementById('bio-display-text');
         const statBoxes = document.querySelectorAll('.stat-box strong');
 
-        // FIXED: Inject micro-skeletons inside the posts grid during loading states
         const gridContainer = document.getElementById('profile-posts-grid');
-        if(gridContainer) gridContainer.innerHTML = '<div class="skeleton-box" style="aspect-ratio:1/1;"></div><div class="skeleton-box" style="aspect-ratio:1/1;"></div><div class="skeleton-box" style="aspect-ratio:1/1;"></div>';
+        if (gridContainer) {
+            gridContainer.innerHTML = '<div class="skeleton-box" style="aspect-ratio:1/1;"></div><div class="skeleton-box" style="aspect-ratio:1/1;"></div><div class="skeleton-box" style="aspect-ratio:1/1;"></div>';
+        }
 
         if (docSnap.exists()) {
             const data = docSnap.data();
@@ -249,8 +250,8 @@ async function loadUserProfileData(uid) {
             nameDisplay.textContent = data.displayName || "Full Name";
             bioDisplay.textContent = data.bio || "No bio description set yet.";
             
-            statBoxes[1].textContent = data.followersCount || 0;
-            statBoxes[2].textContent = data.followingCount || 0;
+            if (statBoxes[1]) statBoxes[1].textContent = data.followersCount || 0;
+            if (statBoxes[2]) statBoxes[2].textContent = data.followingCount || 0;
 
             const linkElement = document.getElementById('bio-display-link');
             if (data.website) {
@@ -271,51 +272,89 @@ async function loadUserProfileData(uid) {
             }
         }
 
-        const actionButtonArea = document.querySelector('.profile-action-buttons');
+                const actionButtonArea = document.querySelector('.profile-action-buttons');
         if (loggedInUser && loggedInUser.uid === uid) {
             actionButtonArea.innerHTML = `<button class="edit-profile-btn" id="open-edit-modal-btn">Edit Profile</button>`;
         } else {
-            actionButtonArea.innerHTML = `<button class="edit-profile-btn" id="profile-follow-action-btn">Follow</button>`;
+            // Render BOTH Follow and Message buttons side by side
+            actionButtonArea.innerHTML = `
+                <div style="display:flex; gap:8px;">
+                    <button class="edit-profile-btn" id="profile-follow-action-btn" style="flex:1;">Follow</button>
+                    <button class="edit-profile-btn" id="profile-message-action-btn" style="flex:1; background:#0095f6; color:#ffffff; border:none;">Message</button>
+                </div>
+            `;
+            
+            // Attach Follow toggle functionality
             const followActionBtn = document.getElementById('profile-follow-action-btn');
             await updateFollowButtonUI(uid, followActionBtn);
+
+            // Attach Direct Message opening action
+            const messageActionBtn = document.getElementById('profile-message-action-btn');
+            if (messageActionBtn) {
+                messageActionBtn.addEventListener('click', () => {
+                    const recipientUsername = usernameDisplay ? usernameDisplay.textContent : "@user";
+                    
+                    // Switch tab to chat screen
+                    switchActiveTabScreen('chat-screen');
+                    
+                    // Open the chat room
+                    openDirectActiveConversationLog(uid, recipientUsername);
+
+                    // Slide the full-screen chat pane into view
+                    const chatPane = document.getElementById('active-chat-fullscreen-pane');
+                    if (chatPane) {
+                        chatPane.style.left = '0%';
+                    }
+                });
+            }
         }
-        
-        // Load User's Grid Posts
+
+        // --- LOAD USER GRID POSTS ---
         if (profilePostsUnsubscribe) profilePostsUnsubscribe();
+
         const postsQuery = query(collection(db, "posts"), where("uid", "==", uid));
+
         profilePostsUnsubscribe = onSnapshot(postsQuery, (snapshot) => {
-            if(!gridContainer) return;
+            if (!gridContainer) return;
             gridContainer.innerHTML = '';
             
             snapshot.forEach((postDoc) => {
                 const post = postDoc.data();
                 const gridItem = document.createElement('div');
                 gridItem.classList.add('grid-post-item');
-                if (post.type === "video") {
-    gridItem.innerHTML = `
-        <video src="${post.postMedia}" muted></video>
-    `;
-} else {
-    gridItem.style.background = `url('${post.postMedia}') center/cover`;
-}
                 
+                if (post.mediaType === "video") {
+                    gridItem.classList.add('is-video');
+                    gridItem.innerHTML = `<video src="${post.postMedia}#t=0.1" preload="metadata" muted playsinline></video>`;
+                } else {
+                    gridItem.style.background = `url('${post.postMedia}') center/cover`;
+                }
+                
+                gridItem.style.aspectRatio = "1 / 1";
+                gridItem.style.cursor = "pointer";
+
                 gridItem.addEventListener('click', async () => {
-                    if (loggedInUser && loggedInUser.uid === uid) {
-                        if(confirm("Do you want to delete this post?")) {
+                    if (auth.currentUser && auth.currentUser.uid === uid) {
+                        if (confirm("Do you want to delete this post?")) {
                             await deleteDoc(doc(db, "posts", postDoc.id));
                             alert("Post deleted successfully.");
                         }
                     }
                 });
+
                 gridContainer.appendChild(gridItem);
             });
-            if(statBoxes[0]) statBoxes[0].textContent = snapshot.size;
+
+            if (statBoxes && statBoxes[0]) {
+                statBoxes[0].textContent = snapshot.size;
+            }
         });
 
     } catch (err) {
         console.error("Error fetching user data:", err);
     }
 }
+
 
 // --- GLOBAL DELEGATED ACTION LISTENERS ---
 document.addEventListener('click', async (e) => {
@@ -943,16 +982,37 @@ if (searchInput && searchContentContainer) {
 }
 
 // --- REAL-TIME LIVE DIRECT MESSAGING FRAMEWORK ---
+// --- COMPLETE CHAT & THREAD MANAGEMENT ---
+
+// 1. LOAD ALL ACTIVE CHAT THREADS FOR LOGGED IN USER
 async function loadChatInboxInboxThreads() {
     const inboxList = document.getElementById('chat-threads-sidebar');
     if (!inboxList || !auth.currentUser) return;
-    inboxList.innerHTML = '';
+    
+    inboxList.innerHTML = '<p style="font-size:11px; color:#8e8e93; text-align:center; padding:10px;">Loading chats...</p>';
+    const myUid = auth.currentUser.uid;
 
     try {
-        const querySnapshot = await getDocs(collection(db, "users"));
-        querySnapshot.forEach((userDoc) => {
-            if (userDoc.id !== auth.currentUser.uid) {
-                const uData = userDoc.data();
+        // Find all active conversations stored under user's private threads
+        const userThreadsRef = collection(db, "users", myUid, "conversations");
+        const snapshot = await getDocs(userThreadsRef);
+        
+        inboxList.innerHTML = ''; // Clear loading indicator
+
+        if (snapshot.empty) {
+            inboxList.innerHTML = `<p style="font-size:11px; color:var(--text-secondary); text-align:center; padding:20px 10px;">No chats yet.<br>Search someone to start messaging!</p>`;
+            return;
+        }
+
+        snapshot.forEach(async (threadDoc) => {
+            const threadData = threadDoc.data();
+            const recipientUid = threadData.recipientUid;
+
+            // Fetch recipient profile data
+            const recipientSnap = await getDoc(doc(db, "users", recipientUid));
+            if (recipientSnap.exists()) {
+                const uData = recipientSnap.data();
+                
                 const threadRow = document.createElement('div');
                 threadRow.className = "sidebar-user-row";
                 threadRow.style.cursor = "pointer";
@@ -961,25 +1021,26 @@ async function loadChatInboxInboxThreads() {
                 const avatarInitial = uData.photoURL ? '' : (uData.displayName ? uData.displayName.charAt(0).toUpperCase() : "?");
 
                 threadRow.innerHTML = `
-                    <div class="chat-avatar" ${avatarStyle}>${avatarInitial}</div>
-                    <div class="chat-meta-preview">
-                        <strong>${uData.username || '@username'}</strong>
-                        <span>Tap to open chat thread</span>
-                    </div>
+                    <div class="chat-avatar" ${avatarStyle} style="width:48px; height:48px; border-radius:50%; background:#262626; display:flex; align-items:center; justify-content:center; font-weight:bold; color:#fff;">${avatarInitial}</div>
+                    <span style="font-size:11px; color:var(--text-secondary); margin-top:4px; max-width:65px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${uData.username || '@user'}</span>
                 `;
 
                 threadRow.addEventListener('click', () => {
-                    openDirectActiveConversationLog(userDoc.id, uData.username || '@username');
+                    openDirectActiveConversationLog(recipientUid, uData.username || '@user');
                 });
 
                 inboxList.appendChild(threadRow);
             }
         });
+
     } catch (err) {
-        console.error("Inbox Threads Loader Error:", err);
+        console.error("Inbox Loader Error:", err);
+        inboxList.innerHTML = '<p style="font-size:11px; color:#ff3040; text-align:center;">Error loading chats.</p>';
     }
 }
 
+// 2. OPEN A CHAT ROOM & LISTEN TO LIVE MESSAGES
+// --- LIVE DIRECT CONVERSATION LOG WITH TIMESTAMPS ---
 function openDirectActiveConversationLog(recipientUid, recipientUsername) {
     activeChatRecipientUid = recipientUid;
     document.getElementById('chat-active-title').textContent = recipientUsername;
@@ -999,29 +1060,26 @@ function openDirectActiveConversationLog(recipientUid, recipientUsername) {
             const bubble = document.createElement('div');
             const typeClass = (msg.senderId === auth.currentUser.uid) ? 'sender' : 'recipient';
             
+            // Convert Firebase Timestamp into a readable "10:42 AM" format
+            let timeString = "";
+            if (msg.timestamp) {
+                const dateObj = msg.timestamp.toDate ? msg.timestamp.toDate() : new Date(msg.timestamp);
+                timeString = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            }
+
             bubble.className = `bubble ${typeClass}`;
-            let time = "";
-
-if (msg.timestamp && msg.timestamp.toDate) {
-    time = msg.timestamp.toDate().toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit"
-    });
-} else {
-    time = "";
-}
-
-bubble.innerHTML = `
-<div>${msg.text}</div>
-<div class="msg-time">${time}</div>
-`;
-
-chatViewPane.appendChild(bubble);
+            bubble.innerHTML = `
+                <span class="msg-text">${msg.text}</span>
+                <span class="msg-time" style="font-size: 9px; opacity: 0.7; margin-top: 4px; display: block; text-align: right;">${timeString}</span>
+            `;
+            chatViewPane.appendChild(bubble);
         });
         chatViewPane.scrollTop = chatViewPane.scrollHeight;
     });
 }
 
+
+// 3. SEND MESSAGE & SAVE CONVERSATION THREAD TO BOTH USERS
 const sendChatBtn = document.getElementById('send-msg-btn');
 const chatInputField = document.getElementById('chat-input-field');
 
@@ -1035,11 +1093,25 @@ if (sendChatBtn && chatInputField) {
         const sharedRoomId = [user.uid, activeChatRecipientUid].sort().join('_');
         
         try {
+            // A. Add message to shared chat room
             await addDoc(collection(db, "chats", sharedRoomId, "messages"), {
                 senderId: user.uid,
                 text: textStr,
                 timestamp: new Date()
             });
+
+            // B. Save chat thread record for current user so it stays in their inbox
+            await setDoc(doc(db, "users", user.uid, "conversations", activeChatRecipientUid), {
+                recipientUid: activeChatRecipientUid,
+                lastUpdated: new Date()
+            }, { merge: true });
+
+            // C. Save chat thread record for recipient so it appears in their inbox too
+            await setDoc(doc(db, "users", activeChatRecipientUid, "conversations", user.uid), {
+                recipientUid: user.uid,
+                lastUpdated: new Date()
+            }, { merge: true });
+
             chatInputField.value = '';
         } catch (err) {
             console.error("Message Dispatch Error:", err);
