@@ -1,0 +1,429 @@
+/* ==========================================================================
+   SASTAGRAM ULTIMATE CLASSY & CREATIVE SIGN-UP EXPERIENCE
+   Theme: Dark Aero-Glass Neumorphism & Ambient Aurora Glow
+   ========================================================================== */
+
+/* --- CORE CUSTOM PROPERTIES --- */
+:root {
+    /* Deep Cosmic Palette */
+    --bg-void: #030308;
+    --card-surface: rgba(13, 13, 22, 0.65);
+    --input-surface: rgba(255, 255, 255, 0.04);
+    --input-hover: rgba(255, 255, 255, 0.07);
+    --input-focus: rgba(20, 20, 35, 0.85);
+
+    /* Text Luminance */
+    --text-pure: #ffffff;
+    --text-muted: #9494a8;
+    --text-subtle: #5a5a72;
+
+    /* Luxury Gradients */
+    --gradient-aurora: linear-gradient(135deg, #833ab4, #fd1d1d, #fcaf45, #e1306c);
+    --gradient-glow: linear-gradient(135deg, rgba(58, 168, 180, 0.4), rgba(225, 48, 108, 0.4), rgba(253, 29, 29, 0.2));
+    --gradient-btn: linear-gradient(135deg, #e1306c 0%, #fd1d1d 50%, #f09433 100%);
+    --gradient-btn-hover: linear-gradient(135deg, #fd1d1d 0%, #e1306c 50%, #833ab4 100%);
+
+    /* Premium Borders & Glass Filters */
+    --border-glass: rgba(255, 255, 255, 0.08);
+    --border-glass-active: rgba(225, 48, 108, 0.4);
+    --blur-strength: blur(30px);
+
+    /* Dynamic Shadows */
+    --shadow-card: 0 30px 80px rgba(0, 0, 0, 0.9), 0 0 50px rgba(225, 48, 108, 0.12);
+    --shadow-btn: 0 10px 30px rgba(225, 48, 108, 0.35);
+    --shadow-btn-hover: 0 15px 40px rgba(225, 48, 108, 0.55);
+}
+
+/* --- RESET & GLOBAL ANIMATION --- */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+}
+
+body {
+    background-color: var(--bg-void);
+    color: var(--text-pure);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 24px;
+    overflow-x: hidden;
+    position: relative;
+}
+
+/* --- AMBIENT DYNAMIC AURORA BACKGROUND ORBS --- */
+body::before,
+body::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(120px);
+    z-index: 0;
+    pointer-events: none;
+    animation: floatAurora 12s ease-in-out infinite alternate;
+}
+
+body::before {
+    width: 450px;
+    height: 450px;
+    background: radial-gradient(circle, rgba(131, 58, 180, 0.35) 0%, transparent 70%);
+    top: -10%;
+    left: -5%;
+}
+
+body::after {
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(48, 139, 225, 0.37) 0%, transparent 70%);
+    bottom: -10%;
+    right: -5%;
+    animation-delay: -6s;
+}
+
+@keyframes floatAurora {
+    0% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(40px, -30px) scale(1.1); }
+    100% { transform: translate(-20px, 50px) scale(0.95); }
+}
+
+/* --- THE MASTER GLASS CARD --- */
+.signup-card {
+    position: relative;
+    z-index: 10;
+    width: 100%;
+    max-width: 460px;
+    background: var(--card-surface);
+    backdrop-filter: var(--blur-strength);
+    -webkit-backdrop-filter: var(--blur-strength);
+    border-radius: 28px;
+    padding: 44px 36px;
+    box-shadow: var(--shadow-card);
+    border: 1px solid var(--border-glass);
+    overflow: hidden;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Subtle Holographic Top Border Accent */
+.signup-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--gradient-aurora);
+    opacity: 0.8;
+}
+
+.signup-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.95), 0 0 60px rgba(225, 48, 108, 0.2);
+}
+
+/* --- BRAND HEADER --- */
+.signup-header {
+    text-align: center;
+    margin-bottom: 32px;
+}
+
+.signup-header i {
+    font-size: 52px;
+    background: var(--gradient-aurora);
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: inline-block;
+    margin-bottom: 12px;
+    animation: gradientShift 6s ease infinite, pulseCrown 3s ease-in-out infinite alternate;
+}
+
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+@keyframes pulseCrown {
+    0% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 4px 15px rgba(225, 48, 108, 0.4)); }
+    100% { transform: scale(1.08) rotate(-4deg); filter: drop-shadow(0 8px 25px rgba(253, 29, 29, 0.7)); }
+}
+
+.signup-header h1 {
+    font-size: 30px;
+    font-weight: 800;
+    letter-spacing: -0.8px;
+    color: var(--text-pure);
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+.signup-header p {
+    color: var(--text-muted);
+    font-size: 13.5px;
+    margin-top: 6px;
+    font-weight: 400;
+    letter-spacing: 0.2px;
+}
+
+/* --- PROGRESS STEPPER (NEUMORPHIC GLOW) --- */
+.progress-bar-container {
+    width: 100%;
+    height: 6px;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 20px;
+    margin-bottom: 32px;
+    overflow: hidden;
+    padding: 1px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.progress-fill {
+    height: 100%;
+    width: 25%;
+    background: var(--gradient-aurora);
+    border-radius: 20px;
+    transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 0 12px rgba(225, 48, 108, 0.8);
+}
+
+/* --- STEP ANIMATION --- */
+.signup-step {
+    display: none;
+    flex-direction: column;
+    gap: 20px;
+    opacity: 0;
+    transform: translateY(20px) scale(0.98);
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.signup-step.active {
+    display: flex;
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+.step-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-pure);
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 4px;
+}
+
+.step-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.15), transparent);
+}
+
+/* --- HIGH-END INPUT FIELDS --- */
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.input-group label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    font-weight: 700;
+}
+
+.signup-card input, 
+.signup-card select, 
+.signup-card textarea {
+    width: 100%;
+    background: var(--input-surface);
+    border: 1px solid var(--border-glass);
+    border-radius: 14px;
+    padding: 14px 18px;
+    color: var(--text-pure);
+    font-size: 14px;
+    outline: none;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.signup-card input::placeholder, 
+.signup-card textarea::placeholder {
+    color: var(--text-subtle);
+}
+
+.signup-card input:hover, 
+.signup-card select:hover, 
+.signup-card textarea:hover {
+    background: var(--input-hover);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.signup-card input:focus, 
+.signup-card select:focus, 
+.signup-card textarea:focus {
+    background: var(--input-focus);
+    border-color: #0095f6;
+    box-shadow: 0 0 0 4px rgba(0, 149, 246, 0.25), inset 0 1px 2px rgba(0, 0, 0, 0.5);
+    transform: translateY(-1px);
+}
+
+.grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+
+/* Custom Styled Select Element */
+.signup-card select {
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239494a8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    background-size: 16px;
+    cursor: pointer;
+}
+
+.signup-card select option {
+    background: #0d0d16;
+    color: #ffffff;
+}
+
+/* --- HOLOGRAPHIC AVATAR PREVIEW --- */
+.avatar-upload-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    margin: 12px 0;
+}
+
+.avatar-preview {
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    background: var(--input-surface);
+    border: 2px dashed rgba(225, 48, 108, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    color: var(--text-muted);
+    background-size: cover;
+    background-position: center;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
+}
+
+.avatar-preview::before {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    border-radius: 50%;
+    background: var(--gradient-aurora);
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    filter: blur(8px);
+}
+
+.avatar-preview:hover {
+    border-color: transparent;
+    transform: scale(1.06);
+    color: var(--text-pure);
+}
+
+.avatar-preview:hover::before {
+    opacity: 0.7;
+}
+
+/* --- BUTTONS --- */
+.btn-primary {
+    position: relative;
+    background: #0095f6;
+    color: #ffffff;
+    border: none;
+    border-radius: 14px;
+    padding: 15px;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.3px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 6px 20px rgba(0, 149, 246, 0.35);
+    overflow: hidden;
+}
+
+.btn-primary:hover {
+    background: #1877f2;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 28px rgba(0, 149, 246, 0.5);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+/* Finish Button Override */
+#finish-signup-btn {
+    background: var(--gradient-btn);
+    box-shadow: var(--shadow-btn);
+}
+
+#finish-signup-btn:hover {
+    background: var(--gradient-btn-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-btn-hover);
+}
+
+.btn-secondary {
+    background: transparent;
+    color: var(--text-muted);
+    border: none;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 4px;
+    text-align: center;
+    transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+    color: var(--text-pure);
+}
+
+/* --- OTP CODE INPUTS --- */
+.otp-inputs {
+    display: flex;
+    gap: 14px;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+.otp-inputs input {
+    width: 56px;
+    height: 60px;
+    text-align: center;
+    font-size: 24px;
+    font-weight: 800;
+    border-radius: 16px;
+    background: var(--input-surface);
+    border: 1px solid var(--border-glass);
+    color: var(--text-pure);
+}
+
+.otp-inputs input:focus {
+    border-color: #e1306c;
+    box-shadow: 0 0 0 4px rgba(225, 48, 108, 0.3);
+    background: var(--input-focus);
+}

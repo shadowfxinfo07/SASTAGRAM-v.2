@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Account • Sastagram</title>
+
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- External Sign-Up Stylesheet -->
+    <link rel="stylesheet" href="signup.css">
+
+    <!-- EmailJS SDK -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script type="text/javascript">
+       (function(){
+          emailjs.init("wq4JQuQ62cUkthA-O");
+       })();
+    </script>
+</head>
+<body>
+
+    <div class="signup-card">
+        <div class="signup-header">
+            <i class="fa-solid fa-crown"></i>
+<h1 style="font-family: ''">Sastagram</h1>
+            <p>Create your personal account</p>
+        </div>
+
+        <div class="progress-bar-container">
+            <div class="progress-fill" id="progress-bar"></div>
+        </div>
+
+        <!-- FORM STEP 1: Full Name & Account Credentials -->
+        <div class="signup-step active" id="step-1">
+            <div class="step-title">1. Basic Info & Password</div>
+            <div class="input-group">
+                <label>Full Name</label>
+                <input type="text" id="su-name" placeholder="e.g. Miguel">
+            </div>
+            <div class="input-group">
+                <label>Username</label>
+                <input type="text" id="su-username" placeholder="@username">
+            </div>
+            <div class="input-group">
+                <label>Password</label>
+                <input type="password" id="su-password" placeholder="Min. 6 characters">
+            </div>
+            <button class="btn-primary" onclick="nextStep(2)">Next</button>
+        </div>
+
+        <!-- FORM STEP 2: Demographics (Age, Gender, Location) -->
+        <div class="signup-step" id="step-2">
+            <div class="step-title">2. About You</div>
+            <div class="grid-2">
+                <div class="input-group">
+                    <label>Age</label>
+                    <input type="number" id="su-age" placeholder="Age" min="10" max="50">
+                </div>
+                <div class="input-group">
+                    <label>Gender</label>
+                    <select id="su-gender">
+                        <option value="">Select</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Prefer Not to Say">Other</option>
+                    </select>
+                </div>
+            </div>
+            <div class="input-group">
+                <label>Country</label>
+                <input type="text" id="su-country" placeholder="e.g. Brazil">
+            </div>
+            <div class="grid-2">
+                <div class="input-group">
+                    <label>State</label>
+                    <input type="text" id="su-state" placeholder="e.g. Bahia">
+                </div>
+                <div class="input-group">
+                    <label>City</label>
+                    <input type="text" id="su-city" placeholder="e.g. Salvador">
+                </div>
+            </div>
+            <button class="btn-primary" onclick="nextStep(3)">Next</button>
+            <button class="btn-secondary" onclick="prevStep(1)">Back</button>
+        </div>
+
+        <!-- FORM STEP 3: Email Verification & OTP -->
+        <div class="signup-step" id="step-3">
+            <div class="step-title">3. Verify Email</div>
+            <div class="input-group">
+                <label>Email Address</label>
+                <input type="email" id="su-email" placeholder="name@example.com">
+            </div>
+            <button class="btn-primary" id="send-otp-btn" onclick="sendOTP()">Send Verification Code</button>
+
+            <div id="otp-section" style="display: none; margin-top: 10px;">
+                <p style="font-size: 12px; color: var(--text-sub); text-align: center;">Enter the 4-digit OTP sent to your email:</p>
+                <div class="otp-inputs">
+                    <input type="text" maxlength="1" class="otp-box">
+                    <input type="text" maxlength="1" class="otp-box">
+                    <input type="text" maxlength="1" class="otp-box">
+                    <input type="text" maxlength="1" class="otp-box">
+                </div>
+                <button class="btn-primary" onclick="verifyOTP()">Verify OTP</button>
+            </div>
+            <button class="btn-secondary" onclick="prevStep(2)">Back</button>
+        </div>
+
+        <!-- FORM STEP 4: Profile Pic & Bio -->
+        <div class="signup-step" id="step-4">
+            <div class="step-title">4. Customize Profile</div>
+            <div class="avatar-upload-box">
+                <div class="avatar-preview" id="avatar-preview" onclick="document.getElementById('su-avatar-file').click()">
+                    <i class="fa-solid fa-camera"></i>
+                </div>
+                <input type="file" id="su-avatar-file" accept="image/*" style="display: none;" onchange="previewAvatar(event)">
+                <span style="font-size: 12px; color: var(--accent-blue); cursor: pointer;" onclick="document.getElementById('su-avatar-file').click()">Upload Profile Picture</span>
+            </div>
+            <div class="input-group">
+                <label>Bio</label>
+                <textarea id="su-bio" rows="3" placeholder="Write something about yourself..."></textarea>
+            </div>
+            <div class="input-group">
+                <label>Website Link (Optional)</label>
+                <input type="url" id="su-website" placeholder="https://yourwebsite.com">
+            </div>
+            <button class="btn-primary" id="finish-signup-btn" onclick="completeRegistration()">Finish & Join Sastagram</button>
+            <button class="btn-secondary" onclick="prevStep(3)">Back</button>
+        </div>
+    </div>
+
+    <!-- FIREBASE INTEGRATION SCRIPT -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCF-Kp7odwbB7SiRfACRLA0eJ5WWOUFTGs",
+            authDomain: "sastagram-3e4f0.firebaseapp.com",
+            projectId: "sastagram-3e4f0",
+            storageBucket: "sastagram-3e4f0.firebasestorage.app",
+            messagingSenderId: "839260610117",
+            appId: "1:839260610117:web:cc787c03520636349b0d2c"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let generatedOTP = null;
+        let isEmailVerified = false;
+        let uploadedAvatarUrl = "";
+
+        // Navigation Controllers
+        window.nextStep = function(stepNum) {
+            if (stepNum === 2) {
+                const name = document.getElementById('su-name').value.trim();
+                const user = document.getElementById('su-username').value.trim();
+                const pass = document.getElementById('su-password').value.trim();
+                if (!name || !user || !pass) return alert("Please fill in Name, Username, and Password!");
+                if (pass.length < 6) return alert("Password must be at least 6 characters.");
+            }
+            if (stepNum === 3) {
+                const age = document.getElementById('su-age').value;
+                const gender = document.getElementById('su-gender').value;
+                if (!age || !gender) return alert("Please specify your Age and Gender.");
+            }
+
+            showStep(stepNum);
+        };
+
+        window.prevStep = function(stepNum) {
+            showStep(stepNum);
+        };
+
+        function showStep(stepNum) {
+            document.querySelectorAll('.signup-step').forEach(s => s.classList.remove('active'));
+            document.getElementById(`step-${stepNum}`).classList.add('active');
+            document.getElementById('progress-bar').style.width = `${(stepNum / 4) * 100}%`;
+        }
+
+        // --- REAL EMAIL OTP DISPATCH ENGINE ---
+        window.sendOTP = async function() {
+            const emailInput = document.getElementById('su-email');
+            const sendBtn = document.getElementById('send-otp-btn');
+            const email = emailInput.value.trim();
+
+            if (!email.includes('@') || !email.includes('.')) {
+                return alert("Please enter a valid email address!");
+            }
+
+            // Generate random 4-digit code
+            generatedOTP = Math.floor(1000 + Math.random() * 9000).toString();
+
+            sendBtn.textContent = "Sending OTP...";
+            sendBtn.disabled = true;
+
+            const templateParams = {
+                to_email: email,
+                otp_code: generatedOTP
+            };
+
+            try {
+                // Correct capital 'Template_dqrlsc9' matched here
+                const response = await emailjs.send("service_l2zqtis", "template_dqrlsc9", templateParams);
+                console.log("EmailJS Success:", response.status, response.text);
+                
+                alert("Verification code sent! Please check your email inbox (and spam folder).");
+                document.getElementById('otp-section').style.display = 'block';
+                sendBtn.style.display = 'none';
+            } catch (error) {
+                console.error("EmailJS Error details:", error);
+                alert("Failed to send OTP email: " + (error.text || error.message || "Please try again."));
+                sendBtn.textContent = "Send Verification Code";
+                sendBtn.disabled = false;
+            }
+        };
+
+        window.verifyOTP = function() {
+            const boxes = document.querySelectorAll('.otp-box');
+            let entered = "";
+            boxes.forEach(b => entered += b.value);
+
+            if (entered === generatedOTP) {
+                alert("Email verified successfully! Click Next to customize your profile.");
+                isEmailVerified = true;
+                window.nextStep(4);
+            } else {
+                alert("Incorrect OTP code. Try again!");
+            }
+        };
+
+        // Cloudinary Image Upload
+        window.previewAvatar = async function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const preview = document.getElementById('avatar-preview');
+            preview.style.backgroundImage = `url('${URL.createObjectURL(file)}')`;
+            preview.innerHTML = "";
+
+            // Upload directly to Cloudinary
+            const formData = new FormData();
+            formData.append("file", file);
+            formData.append("upload_preset", "Sastagram_upload");
+
+            try {
+                const res = await fetch("https://api.cloudinary.com/v1_1/l31byz2v/image/upload", {
+                    method: "POST",
+                    body: formData
+                });
+                const data = await res.json();
+                if (data.secure_url) {
+                    uploadedAvatarUrl = data.secure_url;
+                }
+            } catch (err) {
+                console.error("Avatar upload failed:", err);
+            }
+        };
+
+        // Final Registration Handler
+        window.completeRegistration = async function() {
+            const name = document.getElementById('su-name').value.trim();
+            const rawUser = document.getElementById('su-username').value.trim();
+            const username = rawUser.startsWith('@') ? rawUser : `@${rawUser}`;
+            const password = document.getElementById('su-password').value.trim();
+            const age = document.getElementById('su-age').value;
+            const gender = document.getElementById('su-gender').value;
+            const country = document.getElementById('su-country').value.trim();
+            const state = document.getElementById('su-state').value.trim();
+            const city = document.getElementById('su-city').value.trim();
+            const email = document.getElementById('su-email').value.trim();
+            const bio = document.getElementById('su-bio').value.trim();
+            const website = document.getElementById('su-website').value.trim();
+
+            const finishBtn = document.getElementById('finish-signup-btn');
+            finishBtn.textContent = "Creating Account...";
+            finishBtn.disabled = true;
+
+            try {
+                // 1. Create Firebase Auth Account
+                const userCred = await createUserWithEmailAndPassword(auth, email, password);
+                const uid = userCred.user.uid;
+
+                // 2. Save Complete User Profile in Firestore
+                await setDoc(doc(db, "users", uid), {
+                    displayName: name,
+                    username: username,
+                    email: email,
+                    age: parseInt(age),
+                    gender: gender,
+                    location: {
+                        country: country,
+                        state: state,
+                        city: city
+                    },
+                    photoURL: uploadedAvatarUrl,
+                    bio: bio,
+                    website: website,
+                    followersCount: 0,
+                    followingCount: 0,
+                    createdAt: new Date()
+                });
+
+                alert("Welcome to Sastagram! Redirecting to app...");
+                window.location.href = "index.html";
+
+            } catch (err) {
+                alert("Registration Error: " + err.message);
+                finishBtn.textContent = "Finish & Join Sastagram";
+                finishBtn.disabled = false;
+            }
+        };
+    </script>
+</body>
+</html>

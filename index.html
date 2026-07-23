@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sastagram 🔥</title>
+    <!-- Brand Font & Icon Toolkit Injections -->
+  <link href="https://fonts.googleapis.com/css2?family=Grand+Hotel&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="phone-container">
+        
+        <!-- SECURE AUTHENTICATION GATEWAY -->
+        <div id="auth-overlay" class="auth-blur-pane active">
+            <div class="auth1-brand-logo">
+    <i class="fa-solid fa-crown"></i>
+</div>
+<div class="auth-brand-logo">Sastagram</div>
+            <p class="auth-subtitle">Capture. Share. Connect. </p>
+            
+            <div class="auth-input-group">
+                <div class="field-wrapper">
+                    <i class="fa-regular fa-envelope"></i>
+                    <input type="email" id="auth-email" placeholder="Email Address">
+                </div>
+                <div class="field-wrapper">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" id="auth-password" placeholder="Password">
+                </div>
+            </div>
+
+            <button id="auth-primary-btn" class="brand-gradient-btn">Log In</button>
+<!-- Update your Auth mode toggle text or Sign Up button in index.html -->
+<p id="auth-toggle-mode">
+    Don't have an account? <a href="signup.html" style="color: #0095f6; font-weight: 600; text-decoration: none;">Sign up</a>
+</p>
+
+        </div>
+
+        <!-- APPLICATION MAIN HEADER -->
+        <header class="screen-header">
+            <h1 class="brand-app-title">Sastagram</h1>
+            <div class="header-action-cluster">
+                <i class="fa-regular fa-bell" id="header-notification-bell"></i>
+                <i class="fa-regular fa-paper-plane" id="top-direct-msg-btn"></i>
+            </div>
+        </header>
+
+        <!-- VIEWPORT DISPLAY FRAMEWORK -->
+        <main class="viewport-canvas">
+            
+            <!-- 1. HOME SCREEN VIEW -->
+            <div id="home-screen" class="app-screen active">
+                <div class="screen-content">
+                    <div id="home-stories-strip" class="stories-horizontal-strip"></div>
+                    <!-- Post feeds generate dynamically inside here -->
+                </div>
+            </div>
+
+            <!-- 2. LIVE SEARCH VIEW -->
+            <div id="search-screen" class="app-screen">
+                <div class="search-bar-wrapper">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" placeholder="Search accounts...">
+                </div>
+                <div class="screen-content">
+                    <!-- Explore grid or user rows render dynamically inside here -->
+                </div>
+            </div>
+
+            <!-- 3. DIRECT MESSAGING PANEL -->
+            <div id="chat-screen" class="app-screen">
+                <div class="chat-inbox-layout">
+                    <div id="chat-threads-sidebar">
+                        <!-- Dynamic thread list views -->
+                    </div>
+                    <div class="chat-viewpane-active">
+                        <div class="messaging-header">
+                            <h3 id="chat-active-title">Select Chat</h3>
+                        </div>
+                        <div class="messages-display" id="chat-box"></div>
+                        <div class="messaging-input-row">
+                            <input type="text" id="chat-input-field" placeholder="Message...">
+                            <button id="send-msg-btn"><i class="fa-solid fa-paper-plane"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. PROFILE DASHBOARD -->
+            <div id="profile-screen" class="app-screen">
+                <div class="screen-content">
+                    
+                    <div class="profile-top-bar">
+                        <h2 id="profile-top-username">@username</h2>
+                        <i class="fa-solid fa-sign-out" id="settings-logout-btn" title="Sign Out"></i>
+                    </div>
+
+                    <div class="profile-meta-block">
+                        <div class="avatar-ring-container">
+                            <div id="profile-display-avatar" class="premium-avatar-node">?</div>
+                        </div>
+                        <div class="metrics-row-strip">
+                            <div class="stat-box"><strong>0</strong><span>Posts</span></div>
+                            <div class="stat-box"><strong>0</strong><span>Followers</span></div>
+                            <div class="stat-box"><strong>0</strong><span>Following</span></div>
+                        </div>
+                    </div>
+
+                    <div class="profile-bio-summary">
+                        <h3 id="bio-display-name">Display Name</h3>
+                        <p id="bio-display-text">No bio description set yet.</p>
+                        <a href="#" id="bio-display-link" target="_blank"><i class="fa-solid fa-link"></i> website.com</a>
+                    </div>
+
+                    <div class="profile-action-buttons">
+                        <!-- Injected dynamic follow/edit context elements button blocks -->
+                    </div>
+
+                    <div class="profile-view-tab-strip">
+                        <i class="fa-solid fa-grid-three active"><i class="fa-solid fa-table-cells"></i></i>
+                    </div>
+
+                    <div id="profile-posts-grid" class="posts-grid-container"></div>
+                </div>
+            </div>
+
+        </main>
+<!-- CUSTOM COMMENTS POPUP MODAL -->
+<div id="comments-modal-overlay" class="custom-modal-overlay" style="display: none;">
+    <div class="custom-modal-card">
+        <div class="custom-modal-header">
+            <h3>Comments</h3>
+            <button type="button" id="close-comments-modal-btn" class="modal-close-icon">&times;</button>
+        </div>
+        <div id="modal-comments-list" class="custom-modal-body">
+            <!-- Comments will be injected here dynamically -->
+        </div>
+        <div class="custom-modal-footer">
+            <input type="text" id="modal-comment-input" placeholder="Add a comment..." autocomplete="off">
+            <button type="button" id="modal-submit-comment-btn">Post</button>
+        </div>
+    </div>
+</div>
+<!-- FULLSCREEN REELS SECTION -->
+<section id="reels-screen" class="screen-view" style="display: none;">
+    <div id="reels-feed-container" class="reels-container">
+        <!-- Dynamic Reels injected here -->
+    </div>
+</section>
+
+        <!-- PREMIUM 100x BETTER PUBLISHER MODAL -->
+        <div class="publisher-overlay-modal" id="upload-post-modal">
+            <div class="publisher-card">
+                <div class="publisher-header">
+                    <h3>Create New Post</h3>
+                    <i class="fa-solid fa-xmark" id="close-upload-btn"></i>
+                </div>
+                
+                <div class="publisher-body">
+                    <div class="media-drop-zone" id="media-drop-trigger">
+                       <input type="file" id="input-post-pic" accept="image/*,video/*" style="display:none;">
+                        <div class="drop-zone-prompt" id="drop-zone-preview-box">
+                            <div class="icon-glow"><i class="fa-solid fa-images"></i></div>
+                            <span>Select high-res image file</span>
+                            <p>PNG, JPG up to 10MB supported</p>
+                        </div>
+                    </div>
+
+                    <div class="caption-input-container">
+                        <textarea id="input-post-caption" rows="3" placeholder="Write a caption or add trending #hashtags..."></textarea>
+                    </div>
+                </div>
+
+                <div class="publisher-footer">
+                    <button id="publish-post-btn" class="brand-gradient-btn">Share Post</button>
+                </div>
+            </div>
+        </div>
+
+<!-- DYNAMIC EDIT PROFILE MODAL -->
+<div class="publisher-overlay-modal" id="edit-profile-modal">
+    <div class="publisher-card">
+        <div class="publisher-header">
+            <h3>Edit Profile</h3>
+            <i class="fa-solid fa-xmark" id="close-modal-btn"></i>
+        </div>
+        <!-- Removed conflicting hard-coded absolute inline style heights -->
+        <div class="publisher-body" style="overflow-y: auto; padding-right: 4px;">
+            <div class="avatar-edit-row" style="display:flex; align-items:center; gap:16px; margin-bottom:8px;">
+                <input type="file" id="input-profile-pic" accept="image/*" style="display:none;">
+                <button class="brand-gradient-btn" style="padding:6px 14px; font-size:11px; height: auto;" onclick="document.getElementById('input-profile-pic').click()">Upload Photo</button>
+            </div>
+            <div class="field-wrapper edit-field"><input type="text" id="input-edit-name" placeholder="Full Name"></div>
+            <div class="field-wrapper edit-field"><input type="text" id="input-edit-username" placeholder="Username"></div>
+            <div class="field-wrapper edit-field"><input type="text" id="input-edit-bio" placeholder="Bio description..."></div>
+            <div class="field-wrapper edit-field"><input type="url" id="input-edit-website" placeholder="Website URL Link"></div>
+        </div>
+        <div class="publisher-footer">
+            <button id="save-profile-btn" class="brand-gradient-btn">Save Changes</button>
+        </div>
+    </div>
+</div>
+
+       <!-- BOTTOM NAVIGATION BAR WITH REELS -->
+<nav class="app-navigation-bar">
+    <div class="nav-tab active" id="nav-home-btn" data-target="home-screen" title="Home">
+        <i class="fa-solid fa-house"></i>
+    </div>
+    <div class="nav-tab" id="nav-search-btn" data-target="search-screen" title="Explore">
+        <i class="fa-solid fa-magnifying-glass"></i>
+    </div>
+   <!-- PLUS / CREATE POST ACTION BUTTON -->
+    <div class="nav-tab main-action-center" id="nav-upload-trigger" title="Create Post">
+        <div class="action-gradient-glow"><i class="fa-solid fa-plus"></i></div>
+    </div>
+    <!-- REELS TAB (Replaced Chat) -->
+    <div class="nav-tab" id="nav-reels-btn" data-target="reels-screen" title="Reels">
+        <i class="fa-solid fa-clapperboard"></i>
+    </div>
+    
+    <div class="nav-tab" id="nav-profile-btn" data-target="profile-screen" title="Profile">
+        <i class="fa-regular fa-user"></i>
+    </div>
+</nav>
+
+    <!-- Firebase Script Loader Modules Execution Core Connections -->
+    <script type="module" src="app.js"></script>
+</body>
+</html>
